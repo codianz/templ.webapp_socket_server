@@ -128,7 +128,10 @@ export namespace SocketServer {
           s = SyncSocketIO.Sockets[opt.session_id];
         }
         else{
-          res.status(500).send({"Error": "invalid session_id"});
+          res.status(500).send({
+            "status": "error",
+            "error": `invalid session_id ${opt.session_id}`
+          });
           return;
         }
       }
@@ -147,10 +150,18 @@ export namespace SocketServer {
         case "emit_unsolicited_message":{
           s!.emitUnsolicitedMessage(opt.message!.event, opt.message!.body)
           .then((x)=>{
-            res.status(200).send({"OK": "emitUnsolicitedMessage"});
+            res.status(200).send({
+              "status": "OK",
+              "when": "emitUnsolicitedMessage",
+              "send": opt.message
+            });
           })
           .catch((err)=>{
-            res.status(500).send({"Error": "emitUnsolicitedMessage"});
+            res.status(500).send({
+              "status": "error",
+              "when": "emitUnsolicitedMessage",
+              "error": err
+            });
           });
           break;
         }
@@ -158,10 +169,19 @@ export namespace SocketServer {
         case "emit_solicited_message":{
           s!.emitSolicitedMessageAndWaitResponse(opt.message!.event, opt.message!.body)
           .then((x)=>{
-            res.status(200).send({"OK": "emitSolicitedMessageAndWaitResponse"});
+            res.status(200).send({
+              "status": "OK",
+              "when": "emitSolicitedMessageAndWaitResponse",
+              "send": opt.message,
+              "receive": x
+            });
           })
           .catch((err)=>{
-            res.status(500).send({"Error": "emitSolicitedMessageAndWaitResponse"});
+            res.status(500).send({
+              "status": "error",
+              "when": "emitSolicitedMessageAndWaitResponse",
+              "error": err
+            });
           });
           break;
         }
@@ -169,17 +189,27 @@ export namespace SocketServer {
         case "emit_solicited_response":{
           s!.emitSolicitedResponse(opt.message!.index!, opt.message!.event, opt.message!.body)
           .then((x)=>{
-            res.status(200).send({"OK": "emitSolicitedResponse"});
+            res.status(200).send({
+              "status": "OK",
+              "when": "emitSolicitedResponse",
+              "send": opt.message
+            });
           })
           .catch((err)=>{
-            res.status(500).send({"Error": "emitSolicitedResponse"});
+            res.status(500).send({
+              "status": "OK",
+              "when": "emitSolicitedResponse",
+              "error": err
+            });
           });
           break;
         }
 
         case "goodbye":{
           s!.goodbye();
-          res.status(200).send({"OK": "goodbye"});
+          res.status(200).send({
+            "status": "OK"
+          });
           break;
         }
       }
