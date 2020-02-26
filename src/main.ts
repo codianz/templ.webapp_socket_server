@@ -1,9 +1,11 @@
-import { of } from 'rxjs';
+import { of, Observable } from 'rxjs';
 import { mergeMap, catchError } from 'rxjs/operators';
 import { SocketServer } from './WebServer'
 import { FileReader } from './FileReader'
 import * as path from 'path';
 import { errorToString, readySetGo } from './Utils';
+import { SyncSocketIO } from "syncsocketio";
+//import { SyncSocketIO } from "../../../syncsocketio/src/syncsocketio"
 
 main();
 
@@ -36,30 +38,55 @@ function main() {
     }, ss.RequestObservable);
   }))
   .pipe(mergeMap((req: SocketServer.request_t)=>{
-    console.log("main next %s", req.method);
+    console.log(`method "${req.method}"`);
     switch(req.method){
       case "get":
       case "post":
       case "put":
       {
-        if(req.response){
-          req.response.send(`hello ${req.method}`);
-          return of ();
-        }
+        return doApiJob(req);
       }
-      case "socket":{
-        if(req.socket){
-          req.socket.onUnsolicitedMessage("farewell", (msg)=>{
-            req.socket!.goodbye();
-          });
-        }
+      case "socket":
+      {
+        return doSocketJob(req);
       }
     }
-    return of();
   }))
   .subscribe({
     next: ()      => { console.log("main next"); },
     error: (err)  => { console.error(`main error: ${errorToString(err)}`); },
     complete: ()  => { console.log("main completed"); }
   });
+}
+
+function doApiJob(req: SocketServer.request_t): Observable<undefined> {
+  if(req.request && req.response){
+    req.response.status(200).write("OK");
+  }
+  return of();
+}
+
+function doSocketJob(req: SocketServer.request_t): Observable<undefined> {
+  if(req.socket){
+    req.socket.onUnsolicitedMessage("farewell", (msg)=>{
+      req.socket!.goodbye();
+    });
+
+    req.socket.onUnsolicitedMessage("bindSockets", (msg)=>{
+      const session_id = msg.session_id;
+      const socket = req.socket;
+      if(socket && session_id){
+        const target = SyncSocketIO.findBySessionId(session_id);
+        if(target){
+          console.info(`bindSockets : "${socket.SessionId}" - "${session_id}"`)
+          socket.Tag = `bind to ${session_id}`;
+          SocketServer.bindSockets(socket, target);
+        }
+        else{
+          console.error(`"bindSockets : target socket "${session_id}" not found`);
+        }
+      }
+    });
+  }
+  return of();
 }

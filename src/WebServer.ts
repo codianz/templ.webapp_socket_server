@@ -138,7 +138,9 @@ export namespace SocketServer {
 
       switch(opt.command){
         case "get_socket_ids":{
-          res.status(200).send(Object.keys(SyncSocketIO.Sockets));
+          res.status(200).send(Object.keys(SyncSocketIO.Sockets).map((x)=>{
+            return {session_id: x, tag: SyncSocketIO.Sockets[x].Tag};
+          }));
           break;
         }
 
@@ -214,5 +216,31 @@ export namespace SocketServer {
         }
       }
     }
+  }
+
+  export function bindSockets(A: SyncSocketIO, B: SyncSocketIO){
+    console.info(`bindSockets: "${A.SessionId}" & "${B.SessionId}"`);
+
+    A.onSolcitedMessageAll((m)=>{
+      B.emitSolicitedMessageAndWaitResponse(m.event, m.body)
+      .then((r)=>{
+        A.emitSolicitedResponse(m.index, r.event, r.body);
+      });
+    });
+
+    A.onUnsolicitedMessageAll((m)=>{
+      B.emitUnsolicitedMessage(m.event, m.body);
+    });
+
+    B.onSolcitedMessageAll((m)=>{
+      A.emitSolicitedMessageAndWaitResponse(m.event, m.body)
+      .then((r)=>{
+        B.emitSolicitedResponse(m.index, r.event, r.body);
+      });
+    });
+
+    B.onUnsolicitedMessageAll((m)=>{
+      A.emitUnsolicitedMessage(m.event, m.body);
+    });
   }
 }
