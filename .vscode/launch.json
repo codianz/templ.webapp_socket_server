@@ -13,6 +13,16 @@
       "outFiles": [
           "${workspaceRoot}/dist/**/*.js"
       ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program - local syncsocketio",
+      "preLaunchTask": "server-build",
+      "program": "${workspaceRoot}/dist/templ.webapp_socket_server/src/main.js",
+      "outFiles": [
+          "${workspaceRoot}/dist/**/*.js"
+      ]
     }
   ]
 }

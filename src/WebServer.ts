@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import express = require("express");
 import socketio from "socket.io";
 import { SyncSocketIO } from "syncsocketio";
-//import { SyncSocketIO } from "../../../syncsocketio/src/syncsocketio"
+//import { SyncSocketIO } from "../../syncsocketio/src/syncsocketio"
 import * as bodyParser from 'body-parser';
 import {Request, Response} from "express";
 import cors from 'cors';
@@ -221,26 +221,26 @@ export namespace SocketServer {
   export function bindSockets(A: SyncSocketIO, B: SyncSocketIO){
     console.info(`bindSockets: "${A.SessionId}" & "${B.SessionId}"`);
 
-    A.onSolcitedMessageAll((m)=>{
-      B.emitSolicitedMessageAndWaitResponse(m.event, m.body)
-      .then((r)=>{
-        A.emitSolicitedResponse(m.index, r.event, r.body);
+    A.onSolcitedMessageRegex(".*", (index, event, body)=>{
+      B.emitSolicitedMessageAndWaitResponse(event, body)
+      .then((resp)=>{
+        A.emitSolicitedResponse(index, resp.event, resp.body);
       });
     });
 
-    A.onUnsolicitedMessageAll((m)=>{
-      B.emitUnsolicitedMessage(m.event, m.body);
+    A.onUnsolicitedMessageRegex(".*", (event, body)=>{
+      B.emitUnsolicitedMessage(event, body);
     });
 
-    B.onSolcitedMessageAll((m)=>{
-      A.emitSolicitedMessageAndWaitResponse(m.event, m.body)
-      .then((r)=>{
-        B.emitSolicitedResponse(m.index, r.event, r.body);
+    B.onSolcitedMessageRegex(".*", (index, event, body)=>{
+      A.emitSolicitedMessageAndWaitResponse(event, body)
+      .then((resp)=>{
+        B.emitSolicitedResponse(index, resp.event, resp.body);
       });
     });
 
-    B.onUnsolicitedMessageAll((m)=>{
-      A.emitUnsolicitedMessage(m.event, m.body);
+    B.onUnsolicitedMessageRegex(".*", (event, body)=>{
+      A.emitUnsolicitedMessage(event, body);
     });
   }
 }
