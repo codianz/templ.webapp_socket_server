@@ -1,6 +1,5 @@
 # syncsocketio を使ったwebサーバの実装テンプレート
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/greenkeeperio/badges.svg)](https://greenkeeper.io/)
 [![Build Status](https://travis-ci.org/codianz/templ.webapp_socket_server.png?branch=master)](https://travis-ci.org/codianz/templ.webapp_socket_server)
 [![Dependency Status](https://img.shields.io/david/codianz/templ.webapp_socket_server.svg?style=flat-square)](https://david-dm.org/codianz/templ.webapp_socket_server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
