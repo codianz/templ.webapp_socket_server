@@ -5,7 +5,7 @@ import { FileReader } from './FileReader'
 import * as path from 'path';
 import { errorToString, readySetGo } from './Utils';
 import { SyncSocketIO } from "syncsocketio";
-//import { SyncSocketIO } from "../../../syncsocketio/src/syncsocketio"
+//import { SyncSocketIO } from "../../syncsocketio/src/syncsocketio"
 
 main();
 
